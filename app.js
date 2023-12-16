@@ -6,15 +6,13 @@ const helmet = require('helmet');
 const cors = require('cors');
 
 const appRouter = require('./routes/index');
-const { login, createUser } = require('./controllers/users');
-const { loginValidation, createUserValidation } = require('./middlewares/validation');
-const auth = require('./middlewares/auth');
 const handleError = require('./middlewares/handleError');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const limiter = require('./middlewares/rateLimit');
 
-const { PORT = 3000 } = process.env;
+const { DB_URL, PORT } = process.env;
 
-mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb', {
+mongoose.connect(DB_URL, {
   useNewUrlParser: true,
 });
 
@@ -31,16 +29,13 @@ app.use(cors({
 
 app.use(requestLogger);
 
+app.use(limiter);
+
 app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
-
-app.post('/signin', loginValidation, login);
-app.post('/signup', createUserValidation, createUser);
-
-app.use(auth);
 
 app.use(appRouter);
 
@@ -50,6 +45,4 @@ app.use(errors());
 
 app.use(handleError); // всегда в самом конце
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+app.listen(PORT);
