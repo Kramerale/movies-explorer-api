@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
-  origin: 'https://kramerale.diploma.nomoredomainsmonster.ru',
+  origin: ['http://localhost:3001', 'https://kramerale.diploma.nomoredomainsmonster.ru'],
 }));
 
 app.use(requestLogger);
